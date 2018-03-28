@@ -50,7 +50,11 @@ flights %>%
 
 
 ################### (5) Count the number of first delay #################
-
+flights %>%
+  group_by(tailnum, time_hour) %>%
+  filter(dep_delay <= 0) %>%
+  summarise(count=n())
+#Not sure 
 
 
 ################### (6) Worst on-time record #################
@@ -59,16 +63,18 @@ flights %>%
   filter(dep_delay > 0) %>%
   summarise(n_plane = n()) %>%
   arrange(desc(n_plane))
+
 # Filtered by departure delay, we could see that N258JB has the worst on-time record.
 
 
 ################### (7) Time of day #################
 flights %>%
-  mutate(Date = paste(year, month, day, sep = '-')) %>%
-  group_by(Date) %>%
+  group_by(hour) %>%
   filter(dep_delay > 0) %>%
-  summarise(nplanes = n()) %>%
-  arrange(nplanes)
+  summarise(n_delay = n()) %>%
+  arrange(n_delay)
+
+# You might want to flight late night or early morning to avoid delays.
 
 
 ################### (8) Total minutes of delay #################
@@ -98,14 +104,10 @@ flights %>%
   arrange(desc(timeahead))
 
 # Air time
-flights %>%
-  mutate(realtime = hour * 60 + minute, timediff=(realtime - air_time))%>%
-  arrange(desc(timediff))
+flights %>% 
+  select(flight, origin, dest, air_time) %>%
+  group_by(origin, dest) %>% 
+  mutate(diffe = air_time-min(air_time, na.rm = TRUE)) %>% 
+  arrange(desc(diffe))
 
-# Most delayed 
-flights %>%
-  mutate(realtime = hour * 60 + minute) %>%
-  arrange(realtime) %>%
-  group_by(dest) %>%
-  mutate(diff = (realtime - by(realtime, dest, min))) %>%
-  arrange(desc(diff))
+# Flight 4112 is most delayed.
