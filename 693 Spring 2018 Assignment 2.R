@@ -17,21 +17,26 @@ flights <- as.tbl(flights)
 
 
 ################### (3) Cancelled flights #################
+# I use departure delay
+
 flights %>%
   group_by(day) %>%
   filter(is.na(dep_delay)) %>%
-  summarise(n_plane=n())
+  summarise(n_plane=n()) 
+
 
 flights %>%
+  select(day, flight, dep_delay) %>%
   group_by(day) %>%
   filter(!is.na(dep_delay)) %>%
   summarise(ave=mean(dep_delay))
 
 # By comparing the two filtered tibble, we could see that the cancelled flights is somewhat related to the average delay.
+# With smaller count of cancelled flight, the average of delay tends to be smaller.
 
 
 ################### (4) Worst delays #################
-# I use departure delay
+
 flights %>%
       group_by(carrier) %>%
       filter(dep_delay > 0) %>%
